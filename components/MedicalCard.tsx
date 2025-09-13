@@ -188,38 +188,40 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             </div>
           </div>
           <div
-            className={`px-4 py-2 inline-flex items-center gap-1 rounded-lg border text-base font-medium
+            className={`px-9 py-2 inline-block rounded-md border text-base font-medium
     ${
       status === "accepted"
         ? "bg-green-100 text-green-500 border-green-300"
         : status === "pending"
-          ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+          ? "bg-[#FEF9C2] text-[#938700] border border-[#9E9100]"
           : status === "replace"
-            ? "bg-red-100 text-red-500 border-red-300"
+            ? "bg-red-100 text-red-500 border-red-300 flex items-center gap-1"
             : "bg-red-100 text-red-500 border-red-300"
     }`}>
-            {statusConfig.label}
             {status === "replace" && <CustomReplaceIcon size={16} />}
+            {statusConfig.label}
           </div>
         </div>
 
         {/* Worker Info Grid */}
         <div className="grid grid-cols-3 gap-6 mb-4">
           <div>
-            <p className="text-xs text-gray-500 mb-1">Current location</p>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-xs text-blue-950  font-bold mb-1">
+              Current location
+            </p>
+            <p className="text-xs text-gray-400 font-semibold">
               {worker.location}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-1">Job Offer</p>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-xs text-blue-950  font-bold mb-1">Job Offer</p>
+            <p className="text-xs text-gray-400 font-semibold">
               {worker.jobOffer}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-1">Age</p>
-            <p className="text-sm font-medium text-gray-900">{worker.age}</p>
+            <p className="text-xs text-blue-950  font-bold mb-1">Age</p>
+            <p className="text-xs text-gray-400 font-semibold">{worker.age}</p>
           </div>
         </div>
 
