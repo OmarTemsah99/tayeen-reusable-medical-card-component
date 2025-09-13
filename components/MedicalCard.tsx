@@ -258,7 +258,8 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                           className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm transition-colors"
                           style={{ color: previewColor.border }}
                           aria-hidden>
-                          <span>{statusConfig.label}</span>
+                          {/* Always show "Failed" here */}
+                          <span>Failed</span>
                         </button>
                       </div>
                     )}
