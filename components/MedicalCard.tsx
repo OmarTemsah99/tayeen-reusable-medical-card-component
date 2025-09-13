@@ -168,7 +168,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
   const StatusIcon = statusConfig.icon;
 
   return (
-    <Card className="w-full max-w-lg shadow-sm border border-gray-200">
+    <Card className="w-full max-w-xl shadow-sm border border-gray-200">
       <CardBody className="p-5">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -313,7 +313,9 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
               <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-2 leading-tight">
                 {requirementLabel}
               </h4>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-[180px] flex flex-col overflow-hidden">
+              <div
+                className="bg-white rounded-lg shadow-sm border h-[180px] flex flex-col overflow-hidden"
+                style={{ borderColor: "#3592E6" }}>
                 {/* Document preview area */}
                 <div className="flex-1 bg-gray-50 relative p-3">
                   {/* Mock document lines */}
@@ -330,17 +332,20 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                 </div>
 
                 {/* Document info and download section with blue background */}
-                <div className="bg-[#e0efff] p-3 border-t border-gray-200 flex items-center justify-between">
-                  <div className="text-blue-800 text-[11px] font-medium">
+                <div
+                  className="p-3 border-t flex items-center justify-between"
+                  style={{ background: "#3592E6", borderTopColor: "#3592E6" }}>
+                  <div className="text-white text-[11px] font-medium">
                     KSA Medical Requirements For Drivers
                   </div>
                   <button
-                    className="bg-blue-100 text-[#1e3a8a] hover:bg-blue-200 rounded-full p-2 transition-colors"
+                    className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm hover:bg-sky-50 transition-colors"
+                    style={{ color: "#3592E6" }}
                     onClick={() =>
                       window.open(requirements.downloadUrl, "_blank")
                     }>
-                    <CircleArrowDown size={14} />
-                    Download
+                    <CircleArrowDown size={14} style={{ color: "#3592E6" }} />
+                    <span style={{ color: "#3592E6" }}>Download</span>
                   </button>
                 </div>
               </div>
