@@ -168,8 +168,8 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
   const StatusIcon = statusConfig.icon;
 
   return (
-    <Card className="w-full max-w-xl shadow-sm border border-gray-200">
-      <CardBody className="p-5">
+    <Card className="w-full max-w-2xl shadow-sm border border-gray-200">
+      <CardBody className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -239,7 +239,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             </h4>
             {uploadedFile ? (
               <div className="relative">
-                <div className="bg-white rounded-lg border border-gray-200 h-[180px] flex flex-col">
+                <div className="bg-white rounded-lg border border-gray-200 h-[200px] flex flex-col shadow-sm overflow-hidden">
                   <div className="flex-1 p-3 flex items-center justify-center">
                     <FileText size={32} className="text-gray-400" />
                   </div>
@@ -267,7 +267,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             ) : (
               <div>
                 <div
-                  className={`border-2 border-dashed rounded-lg h-[180px] text-center cursor-pointer mb-2 transition-colors flex flex-col items-center justify-center ${
+                  className={`border-2 border-dashed rounded-lg h-[200px] text-center cursor-pointer mb-2 transition-colors flex flex-col items-center justify-center ${
                     dragActive
                       ? "border-blue-400 bg-blue-50"
                       : "border-gray-300 hover:border-gray-400 bg-white"
@@ -310,11 +310,11 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
           {/* Medical Requirements */}
           {requirements && (
             <div className="relative">
-              <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-2 leading-tight">
+              <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-4 leading-tight">
                 {requirementLabel}
               </h4>
               <div
-                className="bg-white rounded-lg shadow-sm border h-[180px] flex flex-col overflow-hidden"
+                className="bg-white rounded-lg shadow-sm border h-[200px] flex flex-col overflow-hidden"
                 style={{ borderColor: "#3592E6" }}>
                 {/* Document preview area */}
                 <div className="flex-1 bg-gray-50 relative p-3">
