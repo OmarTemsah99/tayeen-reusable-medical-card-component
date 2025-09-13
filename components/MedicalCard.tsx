@@ -304,10 +304,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     size={12}
                     className="text-green-500 mr-1.5 flex-shrink-0"
                   />
-                  <span>
-                    PDF, DOCX — up to{" "}
-                    {Math.round((uploadedFile.size || 0) / 1024 / 1024)}MB
-                  </span>
+                  <span>PDF, DOCX — up to 10MB</span>
                 </div>
               </div>
             ) : (
