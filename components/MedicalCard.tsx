@@ -247,7 +247,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                       borderTopColor: previewColor.infoBg,
                     }}>
                     <div
-                      className="text-sm font-medium"
+                      className="text-sm font-medium truncate"
                       style={{ color: previewColor.infoText }}>
                       {uploadedFile.name || "Uploaded Medical Result"}
                     </div>
@@ -343,7 +343,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     KSA Medical Requirements For Drivers
                   </div>
                   <Button
-                    className="flex items-center gap-1 bg-white rounded-md px-4 py-1 text-[12px] font-medium shadow-sm hover:bg-sky-50 transition-colors"
+                    className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm hover:bg-sky-50 transition-colors"
                     style={{ color: "#3592E6" }}
                     onClick={() =>
                       window.open(requirements.downloadUrl, "_blank")
