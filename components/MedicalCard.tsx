@@ -309,15 +309,15 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
 
           {/* Medical Requirements */}
           {requirements && (
-            <div>
-              <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-4 leading-tight">
+            <div className="relative">
+              <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-2 leading-tight">
                 {requirementLabel}
               </h4>
-              <div className="bg-white rounded-lg border border-gray-200 h-[180px] flex flex-col overflow-hidden">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-[180px] flex flex-col overflow-hidden">
                 {/* Document preview area */}
-                <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 relative p-3">
+                <div className="flex-1 bg-gray-50 relative p-3">
                   {/* Mock document lines */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
                     <div className="h-0.5 bg-gray-400 rounded w-3/5"></div>
                     <div className="h-0.5 bg-gray-400 rounded w-full"></div>
@@ -326,23 +326,22 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     <div className="h-0.5 bg-gray-400 rounded w-1/2"></div>
                   </div>
                   {/* Red dot indicator */}
-                  <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></div>
                 </div>
 
-                {/* Document info and download section */}
-                <div className="p-3 border-t border-gray-200 flex flex-col">
-                  <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium text-center mb-3">
+                {/* Document info and download section with blue background */}
+                <div className="bg-[#e0efff] p-3 border-t border-gray-200 flex items-center justify-between">
+                  <div className="text-blue-800 text-[11px] font-medium">
                     KSA Medical Requirements For Drivers
                   </div>
-                  <div className="flex justify-end">
-                    <button
-                      className="bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-full p-2 transition-colors"
-                      onClick={() =>
-                        window.open(requirements.downloadUrl, "_blank")
-                      }>
-                      <CircleArrowDown size={14} />
-                    </button>
-                  </div>
+                  <button
+                    className="bg-blue-100 text-[#1e3a8a] hover:bg-blue-200 rounded-full p-2 transition-colors"
+                    onClick={() =>
+                      window.open(requirements.downloadUrl, "_blank")
+                    }>
+                    <CircleArrowDown size={14} />
+                    Download
+                  </button>
                 </div>
               </div>
             </div>
