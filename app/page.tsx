@@ -4,7 +4,7 @@ export default function Home() {
   const sharedImage = "/images/pic.jpeg"; // same image for all workers
 
   return (
-    <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="p-6 flex flex-col gap-6">
       {/* Pending */}
       <MedicalCard
         worker={{
