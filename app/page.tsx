@@ -22,6 +22,23 @@ export default function Home() {
         }}
       />
 
+      {/* Pending */}
+      <MedicalCard
+        worker={{
+          name: "john smith",
+          role: "Lawyer",
+          photo: sharedImage,
+          location: "Philippines",
+          jobOffer: "1200",
+          age: "25 years",
+        }}
+        status="pending"
+        requirements={{
+          title: "KSA Medical Requirements For Drivers",
+          downloadUrl: "/docs/medical-requirements.pdf",
+        }}
+      />
+
       {/* Accepted */}
       <MedicalCard
         worker={{
@@ -35,7 +52,7 @@ export default function Home() {
         status="accepted"
         requirements={{
           title: "KSA Medical Requirements For Nurses",
-          downloadUrl: "/docs/nurse-medical.pdf",
+          downloadUrl: "/docs/medical-requirements.pdf",
         }}
       />
 
@@ -52,7 +69,7 @@ export default function Home() {
         status="replace"
         requirements={{
           title: "KSA Medical Requirements For Technicians",
-          downloadUrl: "/docs/technician-medical.pdf",
+          downloadUrl: "/docs/medical-requirements.pdf",
         }}
       />
     </div>

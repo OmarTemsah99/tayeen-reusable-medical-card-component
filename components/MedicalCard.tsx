@@ -9,7 +9,7 @@ import {
   CornerUpLeft,
   UserRound,
 } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 
 type Worker = {
   name: string;
@@ -99,29 +99,94 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<FileData | null>(resultFile);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure component is hydrated on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  /** Load from localStorage on mount and when worker changes */
+  useEffect(() => {
+    if (!isClient || typeof window === "undefined") return;
+
+    const storageKey = `medical_result_${worker.name.replace(/\s+/g, "_")}`;
+
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsedFile = JSON.parse(saved);
+        // Validate the parsed data structure
+        if (
+          parsedFile &&
+          typeof parsedFile === "object" &&
+          parsedFile.name &&
+          parsedFile.size &&
+          parsedFile.type
+        ) {
+          setUploadedFile(parsedFile);
+        }
+      } else if (resultFile) {
+        // If no saved data but resultFile prop is provided, use it
+        setUploadedFile(resultFile);
+      }
+    } catch (error) {
+      console.warn("Failed to parse saved medical result:", error);
+      // Clear corrupted data
+      localStorage.removeItem(storageKey);
+    }
+  }, [worker.name, resultFile, isClient]);
 
   /** File handlers */
-  const handleFileUpload = (file: File) => {
-    if (file.size > maxFileSizeMB * 1024 * 1024) {
-      alert(`File size must be less than ${maxFileSizeMB}MB`);
-      return;
-    }
-    if (!allowedFileTypes.includes(file.type)) {
-      alert(`Allowed file types: PDF, DOCX, DOC`);
-      return;
-    }
+  const handleFileUpload = useCallback(
+    (file: File) => {
+      if (file.size > maxFileSizeMB * 1024 * 1024) {
+        alert(`File size must be less than ${maxFileSizeMB}MB`);
+        return;
+      }
+      if (!allowedFileTypes.includes(file.type)) {
+        const allowedExtensions = allowedFileTypes
+          .map((type) => {
+            switch (type) {
+              case "application/pdf":
+                return "PDF";
+              case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                return "DOCX";
+              case "application/msword":
+                return "DOC";
+              default:
+                return type;
+            }
+          })
+          .join(", ");
+        alert(`Allowed file types: ${allowedExtensions}`);
+        return;
+      }
 
-    const fileData: FileData = {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      uploadedAt: new Date().toISOString(),
-    };
+      const fileData: FileData = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        uploadedAt: new Date().toISOString(),
+      };
 
-    setUploadedFile(fileData);
-    onFileUpload(fileData);
-    onStatusChange("pending");
-  };
+      setUploadedFile(fileData);
+
+      // Save to localStorage with error handling
+      if (typeof window !== "undefined") {
+        try {
+          const storageKey = `medical_result_${worker.name.replace(/\s+/g, "_")}`;
+          localStorage.setItem(storageKey, JSON.stringify(fileData));
+        } catch (error) {
+          console.warn("Failed to save file data to localStorage:", error);
+        }
+      }
+
+      onFileUpload(fileData);
+      onStatusChange("pending");
+    },
+    [maxFileSizeMB, allowedFileTypes, worker.name, onFileUpload, onStatusChange]
+  );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -129,18 +194,41 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
     setDragActive(e.type === "dragenter" || e.type === "dragover");
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    const files = e.dataTransfer.files;
-    if (files && files[0]) handleFileUpload(files[0]);
-  }, []);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      const files = e.dataTransfer.files;
+      if (files && files[0]) handleFileUpload(files[0]);
+    },
+    [handleFileUpload]
+  );
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFileUpload(file);
-  };
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) handleFileUpload(file);
+    },
+    [handleFileUpload]
+  );
+
+  const handleFileInputClick = useCallback(() => {
+    const fileInput = document.getElementById(
+      `file-input-${worker.name.replace(/\s+/g, "_")}`
+    );
+    fileInput?.click();
+  }, [worker.name]);
+
+  const handleRequirementDownload = useCallback(() => {
+    if (requirements?.downloadUrl) {
+      try {
+        window.open(requirements.downloadUrl, "_blank", "noopener,noreferrer");
+      } catch (error) {
+        console.warn("Failed to open download URL:", error);
+      }
+    }
+  }, [requirements?.downloadUrl]);
 
   const statusConfig = statusMap[status];
 
@@ -151,6 +239,8 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
       : status === "pending"
         ? { border: "#9E9100", infoBg: "#FEF9C2", infoText: "#938700" }
         : { border: "#ef4444", infoBg: "#ef4444", infoText: "#ffffff" };
+
+  const fileInputId = `file-input-${worker.name.replace(/\s+/g, "_")}`;
 
   return (
     <Card className="w-full max-w-2xl shadow-sm border border-gray-200">
@@ -179,7 +269,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
           </div>
         </div>
 
-        {/* Worker Info Grid - full width with left/center/right alignment */}
+        {/* Worker Info Grid */}
         <div
           className="grid gap-6 mb-4"
           style={{ gridTemplateColumns: "1fr auto 1fr" }}>
@@ -247,20 +337,19 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                       borderTopColor: previewColor.infoBg,
                     }}>
                     <div
-                      className="text-sm font-medium truncate"
-                      style={{ color: previewColor.infoText }}>
+                      className="text-sm font-medium truncate max-w-[120px]"
+                      style={{ color: previewColor.infoText }}
+                      title={uploadedFile.name}>
                       {uploadedFile.name || "Uploaded Medical Result"}
                     </div>
 
                     {status === "replace" && (
                       <div className="flex items-center">
-                        <button
-                          className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm transition-colors"
-                          style={{ color: previewColor.border }}
-                          aria-hidden>
-                          {/* Always show "Failed" here */}
+                        <div
+                          className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm"
+                          style={{ color: previewColor.border }}>
                           <span>Failed</span>
-                        </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -270,7 +359,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     size={12}
                     className="text-green-500 mr-1.5 flex-shrink-0"
                   />
-                  <span>PDF, DOCX — up to 10MB</span>
+                  <span>PDF, DOCX — up to {maxFileSizeMB}MB</span>
                 </div>
               </div>
             ) : (
@@ -285,24 +374,37 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
                   onDrop={handleDrop}
-                  onClick={() =>
-                    document.getElementById("file-input")?.click()
-                  }>
+                  onClick={handleFileInputClick}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleFileInputClick();
+                    }
+                  }}>
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mb-3">
                     <ArrowUp size={20} className="text-white" />
                   </div>
-                  <button className="bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded px-4 py-2 text-xs font-medium mb-2 transition-colors">
+                  <button
+                    type="button"
+                    className="bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded px-4 py-2 text-xs font-medium mb-2 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFileInputClick();
+                    }}>
                     Add Files
                   </button>
                   <p className="text-xs text-gray-500 leading-tight">
                     Or drag files to upload
                   </p>
                   <input
-                    id="file-input"
+                    id={fileInputId}
                     type="file"
                     className="hidden"
                     accept={allowedFileTypes.join(",")}
                     onChange={handleFileInputChange}
+                    aria-label="Upload medical result file"
                   />
                 </div>
                 <div className="flex items-center text-xs text-gray-500">
@@ -310,7 +412,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     size={12}
                     className="text-green-500 mr-1.5 flex-shrink-0"
                   />
-                  <span>PDF, DOCX — up to 10MB</span>
+                  <span>PDF, DOCX — up to {maxFileSizeMB}MB</span>
                 </div>
               </div>
             )}
@@ -340,16 +442,18 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                 <div
                   className="p-3 border-t flex items-center justify-between"
                   style={{ background: "#3592E6", borderTopColor: "#3592E6" }}>
-                  <div className="text-white text-[11px] font-medium">
-                    KSA Medical Requirements For Drivers
+                  <div
+                    className="text-white text-[11px] font-medium truncate max-w-[120px]"
+                    title={requirements.title}>
+                    {requirements.title ||
+                      "KSA Medical Requirements For Drivers"}
                   </div>
                   <Button
                     className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm hover:bg-sky-50 transition-colors"
                     style={{ color: "#3592E6" }}
-                    onClick={() =>
-                      window.open(requirements.downloadUrl, "_blank")
-                    }>
-                    <CircleArrowDown size={50} style={{ color: "#3592E6" }} />
+                    onClick={handleRequirementDownload}
+                    type="button">
+                    <CircleArrowDown size={16} style={{ color: "#3592E6" }} />
                     <span style={{ color: "#3592E6" }}>Download</span>
                   </Button>
                 </div>
@@ -357,14 +461,24 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             </div>
           )}
         </div>
+
+        {/* Rejection Note */}
+        {rejectionNote && status === "replace" && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600 font-medium">Rejection Note:</p>
+            <p className="text-sm text-red-500 mt-1">{rejectionNote}</p>
+          </div>
+        )}
       </CardBody>
     </Card>
   );
 };
 
-export default MedicalCard;
-
-const CustomReplaceIcon = ({ size = 24, strokeSize = 4, className = "" }) => {
+const CustomReplaceIcon: React.FC<{
+  size?: number;
+  strokeSize?: number;
+  className?: string;
+}> = ({ size = 24, strokeSize = 4, className = "" }) => {
   const userSize = size * 0.5;
   const arrowSize = size * 0.5;
   const userStroke = strokeSize;
@@ -372,7 +486,9 @@ const CustomReplaceIcon = ({ size = 24, strokeSize = 4, className = "" }) => {
   return (
     <div
       className={`relative inline-flex items-center justify-center ${className}`}
-      style={{ width: size, height: size }}>
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label="Replace worker icon">
       {/* Top-left user */}
       <UserRound
         size={userSize}
@@ -399,3 +515,5 @@ const CustomReplaceIcon = ({ size = 24, strokeSize = 4, className = "" }) => {
     </div>
   );
 };
+
+export default MedicalCard;
