@@ -3,11 +3,11 @@
 import React, { useState, useCallback } from "react";
 import { Card, CardBody, Avatar, Button, Chip, Divider } from "@heroui/react";
 import {
-  Upload,
-  Download,
+  ArrowUp,
+  CircleArrowDown,
   FileText,
   AlertCircle,
-  CheckCircle2,
+  Check,
   Clock,
   UserX,
   CornerDownRight,
@@ -67,7 +67,7 @@ const statusMap: Record<
   accepted: {
     color: "success",
     label: "Accepted",
-    icon: CheckCircle2,
+    icon: Check,
     bgColor: "bg-green-100",
     textColor: "text-green-800",
   },
@@ -184,7 +184,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
               <h3 className="font-semibold text-base text-gray-900">
                 {worker.name}
               </h3>
-              <p className="text-sm text-gray-500">{worker.role}</p>
+              <p className="text-sm text-gray-400">{worker.role}</p>
             </div>
           </div>
           <div
@@ -206,7 +206,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
         {/* Worker Info Grid */}
         <div className="grid grid-cols-3 gap-6 mb-4">
           <div>
-            <p className="text-xs text-blue-950  font-bold mb-1">
+            <p className="text-xs text-blue-950 font-bold mb-1">
               Current location
             </p>
             <p className="text-xs text-gray-400 font-semibold">
@@ -214,53 +214,63 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             </p>
           </div>
           <div>
-            <p className="text-xs text-blue-950  font-bold mb-1">Job Offer</p>
+            <p className="text-xs text-blue-950 font-bold mb-1">Job Offer</p>
             <p className="text-xs text-gray-400 font-semibold">
               {worker.jobOffer}
             </p>
           </div>
           <div>
-            <p className="text-xs text-blue-950  font-bold mb-1">Age</p>
+            <p className="text-xs text-blue-950 font-bold mb-1">Age</p>
             <p className="text-xs text-gray-400 font-semibold">{worker.age}</p>
           </div>
         </div>
 
-        {/* File Sections */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Divider between worker info and file sections */}
+        <div className="my-4">
+          <div className="h-px bg-gray-300 w-full"></div>
+        </div>
+
+        {/* File Sections - Updated to match image exactly */}
+        <div className="grid grid-cols-2 gap-6">
           {/* Medical Result */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-3">
+            <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-4 leading-tight">
               {uploadLabel}
             </h4>
             {uploadedFile ? (
               <div className="relative">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2">
-                  <div className="w-full h-24 bg-white border border-gray-200 rounded mb-2 flex items-center justify-center">
+                <div className="bg-white rounded-lg border border-gray-200 h-[180px] flex flex-col">
+                  <div className="flex-1 p-3 flex items-center justify-center">
                     <FileText size={32} className="text-gray-400" />
                   </div>
-                  <div
-                    className={`px-2 py-1 rounded text-xs font-medium text-center ${
-                      status === "accepted"
-                        ? "bg-green-500 text-white"
-                        : status === "failed"
-                          ? "bg-red-500 text-white"
-                          : "bg-gray-500 text-white"
-                    }`}>
-                    KSA Medical Result For Drivers
+                  <div className="p-3 border-t border-gray-200">
+                    <div
+                      className={`px-2 py-1 rounded text-xs font-medium text-center ${
+                        status === "accepted"
+                          ? "bg-green-500 text-white"
+                          : status === "failed"
+                            ? "bg-red-500 text-white"
+                            : "bg-gray-500 text-white"
+                      }`}>
+                      KSA Medical Result For Drivers
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center text-xs text-gray-600">
-                  <CheckCircle2 size={12} className="text-green-500 mr-1" />
-                  PDF, DOCX — up to 10MB
+                <div className="flex items-center text-xs text-gray-500 mt-2">
+                  <Check
+                    size={12}
+                    className="text-green-500 mr-1.5 flex-shrink-0"
+                  />
+                  <span>PDF, DOCX — up to 10MB</span>
                 </div>
               </div>
             ) : (
               <div>
                 <div
-                  className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer mb-2 ${
+                  className={`border-2 border-dashed rounded-lg h-[180px] text-center cursor-pointer mb-2 transition-colors flex flex-col items-center justify-center ${
                     dragActive
                       ? "border-blue-400 bg-blue-50"
-                      : "border-gray-300 hover:border-gray-400 bg-gray-50"
+                      : "border-gray-300 hover:border-gray-400 bg-white"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -269,15 +279,13 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                   onClick={() =>
                     document.getElementById("file-input")?.click()
                   }>
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Upload size={20} className="text-blue-600" />
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mb-3">
+                    <ArrowUp size={20} className="text-white" />
                   </div>
-                  <Button
-                    size="sm"
-                    className="bg-blue-100 text-blue-600 hover:bg-blue-200 mb-2 text-xs px-4 py-1 h-7">
+                  <button className="bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded px-4 py-2 text-xs font-medium mb-2 transition-colors">
                     Add Files
-                  </Button>
-                  <p className="text-xs text-gray-500">
+                  </button>
+                  <p className="text-xs text-gray-500 leading-tight">
                     Or drag files to upload
                   </p>
                   <input
@@ -288,9 +296,12 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     onChange={handleFileInputChange}
                   />
                 </div>
-                <div className="flex items-center text-xs text-gray-600">
-                  <CheckCircle2 size={12} className="text-green-500 mr-1" />
-                  PDF, DOCX — up to 10MB
+                <div className="flex items-center text-xs text-gray-500">
+                  <Check
+                    size={12}
+                    className="text-green-500 mr-1.5 flex-shrink-0"
+                  />
+                  <span>PDF, DOCX — up to 10MB</span>
                 </div>
               </div>
             )}
@@ -299,25 +310,40 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
           {/* Medical Requirements */}
           {requirements && (
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">
+              <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-4 leading-tight">
                 {requirementLabel}
               </h4>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2">
-                <div className="w-full h-24 bg-white border border-gray-200 rounded mb-2 flex items-center justify-center">
-                  <FileText size={32} className="text-gray-400" />
+              <div className="bg-white rounded-lg border border-gray-200 h-[180px] flex flex-col overflow-hidden">
+                {/* Document preview area */}
+                <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 relative p-3">
+                  {/* Mock document lines */}
+                  <div className="space-y-1.5">
+                    <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
+                    <div className="h-0.5 bg-gray-400 rounded w-3/5"></div>
+                    <div className="h-0.5 bg-gray-400 rounded w-full"></div>
+                    <div className="h-0.5 bg-gray-400 rounded w-2/3"></div>
+                    <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
+                    <div className="h-0.5 bg-gray-400 rounded w-1/2"></div>
+                  </div>
+                  {/* Red dot indicator */}
+                  <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                 </div>
-                <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium text-center mb-2">
-                  KSA Medical Requirements For Drivers
+
+                {/* Document info and download section */}
+                <div className="p-3 border-t border-gray-200 flex flex-col">
+                  <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium text-center mb-3">
+                    KSA Medical Requirements For Drivers
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      className="bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-full p-2 transition-colors"
+                      onClick={() =>
+                        window.open(requirements.downloadUrl, "_blank")
+                      }>
+                      <CircleArrowDown size={14} />
+                    </button>
+                  </div>
                 </div>
-                <Button
-                  size="sm"
-                  className="w-full bg-blue-100 text-blue-600 hover:bg-blue-200 text-xs h-7 flex items-center justify-center gap-1"
-                  onPress={() =>
-                    window.open(requirements.downloadUrl, "_blank")
-                  }>
-                  <Download size={12} />
-                  Download
-                </Button>
               </div>
             </div>
           )}
