@@ -218,7 +218,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
         <div className="grid grid-cols-2 gap-6">
           {/* Medical Result */}
           <div>
-            <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-4 leading-tight">
+            <h4 className="text-[18px] font-bold text-[#1e3a8a] mb-4 leading-tight">
               {uploadLabel}
             </h4>
             {uploadedFile ? (
@@ -318,7 +318,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
           {/* Medical Requirements */}
           {requirements && (
             <div className="relative">
-              <h4 className="text-[13px] font-bold text-[#1e3a8a] mb-4 leading-tight">
+              <h4 className="text-[18px] font-bold text-[#1e3a8a] mb-4 leading-tight">
                 {requirementLabel}
               </h4>
               <div
