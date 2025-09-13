@@ -166,6 +166,25 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
 
   const statusConfig = statusMap[status] ?? statusMap.unknown;
   const StatusIcon = statusConfig.icon;
+  // Map status to exact colors for the preview area (borders and info bar)
+  const previewColor: { border: string; infoBg: string; infoText: string } =
+    status === "accepted"
+      ? { border: "#16a34a", infoBg: "#16a34a", infoText: "#ffffff" } // green-500
+      : status === "pending"
+        ? { border: "#9E9100", infoBg: "#FEF9C2", infoText: "#938700" } // pending (pale yellow + dark text)
+        : status === "failed" || status === "replace"
+          ? { border: "#ef4444", infoBg: "#ef4444", infoText: "#ffffff" } // red-500
+          : { border: "#3592E6", infoBg: "#3592E6", infoText: "#ffffff" }; // custom blue
+
+  // Badge classes for result status (reuses header color concept)
+  const resultBadgeClass =
+    status === "accepted"
+      ? "px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-500 border border-green-300"
+      : status === "pending"
+        ? "px-2 py-1 rounded text-xs font-medium bg-[#FEF9C2] text-[#938700] border border-[#9E9100]"
+        : status === "replace"
+          ? "px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-500 border border-red-300 flex items-center gap-1"
+          : "px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-500 border border-red-300";
 
   return (
     <Card className="w-full max-w-2xl shadow-sm border border-gray-200">
@@ -239,20 +258,44 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             </h4>
             {uploadedFile ? (
               <div className="relative">
-                <div className="bg-white rounded-lg border border-gray-200 h-[200px] flex flex-col shadow-sm overflow-hidden">
-                  <div className="flex-1 p-3 flex items-center justify-center">
-                    <FileText size={32} className="text-gray-400" />
+                <div
+                  className="bg-white rounded-lg border h-[200px] flex flex-col shadow-sm overflow-hidden"
+                  style={{ borderColor: previewColor.border }}>
+                  {/* Document preview area (same as requirements) */}
+                  <div className="flex-1 bg-gray-50 relative p-3">
+                    <div className="space-y-2">
+                      <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
+                      <div className="h-0.5 bg-gray-400 rounded w-3/5"></div>
+                      <div className="h-0.5 bg-gray-400 rounded w-full"></div>
+                      <div className="h-0.5 bg-gray-400 rounded w-2/3"></div>
+                      <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
+                      <div className="h-0.5 bg-gray-400 rounded w-1/2"></div>
+                    </div>
+                    <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></div>
                   </div>
-                  <div className="p-3 border-t border-gray-200">
+
+                  {/* Document info and download section with hex blue */}
+                  <div
+                    className="p-3 border-t flex items-center justify-between"
+                    style={{
+                      background: previewColor.infoBg,
+                      borderTopColor: previewColor.infoBg,
+                    }}>
                     <div
-                      className={`px-2 py-1 rounded text-xs font-medium text-center ${
-                        status === "accepted"
-                          ? "bg-green-500 text-white"
-                          : status === "failed"
-                            ? "bg-red-500 text-white"
-                            : "bg-gray-500 text-white"
-                      }`}>
-                      KSA Medical Result For Drivers
+                      className="text-sm font-medium"
+                      style={{ color: previewColor.infoText }}>
+                      {uploadedFile.name || "Uploaded Medical Result"}
+                    </div>
+                    <div className="flex items-center">
+                      <button
+                        className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm transition-colors"
+                        style={{ color: previewColor.border }}
+                        aria-hidden>
+                        {status === "replace" && (
+                          <CustomReplaceIcon size={12} />
+                        )}
+                        <span>{statusConfig.label}</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -261,7 +304,10 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     size={12}
                     className="text-green-500 mr-1.5 flex-shrink-0"
                   />
-                  <span>PDF, DOCX — up to 10MB</span>
+                  <span>
+                    PDF, DOCX — up to{" "}
+                    {Math.round((uploadedFile.size || 0) / 1024 / 1024)}MB
+                  </span>
                 </div>
               </div>
             ) : (
