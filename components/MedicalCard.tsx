@@ -1,19 +1,15 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { Card, CardBody, Avatar, Button, Chip, Divider } from "@heroui/react";
+import { Avatar, Card, CardBody, Button } from "@heroui/react";
 import {
   ArrowUp,
-  CircleArrowDown,
-  FileText,
-  AlertCircle,
   Check,
-  Clock,
-  UserX,
+  CircleArrowDown,
   CornerDownRight,
   CornerUpLeft,
   UserRound,
 } from "lucide-react";
+import React, { useCallback, useState } from "react";
 
 type Worker = {
   name: string;
@@ -36,7 +32,7 @@ type Requirement = {
   downloadUrl: string;
 };
 
-type Status = "accepted" | "pending" | "failed" | "replace" | "unknown";
+type Status = "accepted" | "pending" | "replace";
 
 interface MedicalCardProps {
   worker: Worker;
@@ -57,47 +53,29 @@ interface MedicalCardProps {
 const statusMap: Record<
   Status,
   {
-    color: "success" | "warning" | "danger" | "default";
     label: string;
-    icon: React.ElementType;
     bgColor: string;
     textColor: string;
+    borderColor: string;
   }
 > = {
   accepted: {
-    color: "success",
     label: "Accepted",
-    icon: Check,
     bgColor: "bg-green-100",
-    textColor: "text-green-800",
+    textColor: "text-green-500",
+    borderColor: "border-green-300",
   },
   pending: {
-    color: "warning",
     label: "Pending",
-    icon: Clock,
-    bgColor: "bg-yellow-100",
-    textColor: "text-yellow-800",
-  },
-  failed: {
-    color: "danger",
-    label: "Failed",
-    icon: AlertCircle,
-    bgColor: "bg-red-100",
-    textColor: "text-red-800",
+    bgColor: "bg-[#FEF9C2]",
+    textColor: "text-[#938700]",
+    borderColor: "border-[#9E9100]",
   },
   replace: {
-    color: "danger",
     label: "Replace Worker",
-    icon: UserX,
     bgColor: "bg-red-100",
-    textColor: "text-red-800",
-  },
-  unknown: {
-    color: "default",
-    label: "Unknown",
-    icon: AlertCircle,
-    bgColor: "bg-gray-100",
-    textColor: "text-gray-800",
+    textColor: "text-red-500",
+    borderColor: "border-red-300",
   },
 };
 
@@ -164,27 +142,15 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
     if (file) handleFileUpload(file);
   };
 
-  const statusConfig = statusMap[status] ?? statusMap.unknown;
-  const StatusIcon = statusConfig.icon;
-  // Map status to exact colors for the preview area (borders and info bar)
-  const previewColor: { border: string; infoBg: string; infoText: string } =
-    status === "accepted"
-      ? { border: "#16a34a", infoBg: "#16a34a", infoText: "#ffffff" } // green-500
-      : status === "pending"
-        ? { border: "#9E9100", infoBg: "#FEF9C2", infoText: "#938700" } // pending (pale yellow + dark text)
-        : status === "failed" || status === "replace"
-          ? { border: "#ef4444", infoBg: "#ef4444", infoText: "#ffffff" } // red-500
-          : { border: "#3592E6", infoBg: "#3592E6", infoText: "#ffffff" }; // custom blue
+  const statusConfig = statusMap[status];
 
-  // Badge classes for result status (reuses header color concept)
-  const resultBadgeClass =
+  // Preview area colors
+  const previewColor =
     status === "accepted"
-      ? "px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-500 border border-green-300"
+      ? { border: "#16a34a", infoBg: "#16a34a", infoText: "#ffffff" }
       : status === "pending"
-        ? "px-2 py-1 rounded text-xs font-medium bg-[#FEF9C2] text-[#938700] border border-[#9E9100]"
-        : status === "replace"
-          ? "px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-500 border border-red-300 flex items-center gap-1"
-          : "px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-500 border border-red-300";
+        ? { border: "#9E9100", infoBg: "#FEF9C2", infoText: "#938700" }
+        : { border: "#ef4444", infoBg: "#ef4444", infoText: "#ffffff" };
 
   return (
     <Card className="w-full max-w-2xl shadow-sm border border-gray-200">
@@ -207,24 +173,17 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
             </div>
           </div>
           <div
-            className={`px-9 py-2 inline-block rounded-md border text-base font-medium
-    ${
-      status === "accepted"
-        ? "bg-green-100 text-green-500 border-green-300"
-        : status === "pending"
-          ? "bg-[#FEF9C2] text-[#938700] border border-[#9E9100]"
-          : status === "replace"
-            ? "bg-red-100 text-red-500 border-red-300 flex items-center gap-1"
-            : "bg-red-100 text-red-500 border-red-300"
-    }`}>
+            className={`px-4 py-2 inline-flex items-center gap-1 rounded-md border text-base font-medium ${statusConfig.bgColor} ${statusConfig.textColor} ${statusConfig.borderColor}`}>
+            <span>{statusConfig.label}</span>
             {status === "replace" && <CustomReplaceIcon size={16} />}
-            {statusConfig.label}
           </div>
         </div>
 
-        {/* Worker Info Grid */}
-        <div className="grid grid-cols-3 gap-6 mb-4">
-          <div>
+        {/* Worker Info Grid - full width with left/center/right alignment */}
+        <div
+          className="grid gap-6 mb-4"
+          style={{ gridTemplateColumns: "1fr auto 1fr" }}>
+          <div className="text-left">
             <p className="text-xs text-blue-950 font-bold mb-1">
               Current location
             </p>
@@ -232,24 +191,30 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
               {worker.location}
             </p>
           </div>
-          <div>
-            <p className="text-xs text-blue-950 font-bold mb-1">Job Offer</p>
-            <p className="text-xs text-gray-400 font-semibold">
-              {worker.jobOffer}
-            </p>
+          <div className="flex justify-center">
+            <div className="text-left">
+              <p className="text-xs text-blue-950 font-bold mb-1">Job Offer</p>
+              <p className="text-xs text-gray-400 font-semibold">
+                {worker.jobOffer}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs text-blue-950 font-bold mb-1">Age</p>
-            <p className="text-xs text-gray-400 font-semibold">{worker.age}</p>
+          <div className="flex justify-end">
+            <div className="text-left">
+              <p className="text-xs text-blue-950 font-bold mb-1">Age</p>
+              <p className="text-xs text-gray-400 font-semibold">
+                {worker.age}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Divider between worker info and file sections */}
+        {/* Divider */}
         <div className="my-4">
           <div className="h-px bg-gray-300 w-full"></div>
         </div>
 
-        {/* File Sections - Updated to match image exactly */}
+        {/* File Sections */}
         <div className="grid grid-cols-2 gap-6">
           {/* Medical Result */}
           <div>
@@ -261,7 +226,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                 <div
                   className="bg-white rounded-lg border h-[200px] flex flex-col shadow-sm overflow-hidden"
                   style={{ borderColor: previewColor.border }}>
-                  {/* Document preview area (same as requirements) */}
+                  {/* Preview area */}
                   <div className="flex-1 bg-gray-50 relative p-3">
                     <div className="space-y-2">
                       <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
@@ -274,7 +239,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></div>
                   </div>
 
-                  {/* Document info and download section with hex blue */}
+                  {/* Info bar */}
                   <div
                     className="p-3 border-t flex items-center justify-between"
                     style={{
@@ -286,17 +251,17 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                       style={{ color: previewColor.infoText }}>
                       {uploadedFile.name || "Uploaded Medical Result"}
                     </div>
-                    <div className="flex items-center">
-                      <button
-                        className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm transition-colors"
-                        style={{ color: previewColor.border }}
-                        aria-hidden>
-                        {status === "replace" && (
-                          <CustomReplaceIcon size={12} />
-                        )}
-                        <span>{statusConfig.label}</span>
-                      </button>
-                    </div>
+
+                    {status === "replace" && (
+                      <div className="flex items-center">
+                        <button
+                          className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm transition-colors"
+                          style={{ color: previewColor.border }}
+                          aria-hidden>
+                          <span>{statusConfig.label}</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center text-xs text-gray-500 mt-2">
@@ -359,9 +324,7 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
               <div
                 className="bg-white rounded-lg shadow-sm border h-[200px] flex flex-col overflow-hidden"
                 style={{ borderColor: "#3592E6" }}>
-                {/* Document preview area */}
                 <div className="flex-1 bg-gray-50 relative p-3">
-                  {/* Mock document lines */}
                   <div className="space-y-2">
                     <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
                     <div className="h-0.5 bg-gray-400 rounded w-3/5"></div>
@@ -370,48 +333,29 @@ const MedicalCard: React.FC<MedicalCardProps> = ({
                     <div className="h-0.5 bg-gray-400 rounded w-4/5"></div>
                     <div className="h-0.5 bg-gray-400 rounded w-1/2"></div>
                   </div>
-                  {/* Red dot indicator */}
                   <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></div>
                 </div>
 
-                {/* Document info and download section with blue background */}
                 <div
                   className="p-3 border-t flex items-center justify-between"
                   style={{ background: "#3592E6", borderTopColor: "#3592E6" }}>
                   <div className="text-white text-[11px] font-medium">
                     KSA Medical Requirements For Drivers
                   </div>
-                  <button
-                    className="flex items-center gap-1 bg-white rounded-md px-3 py-1 text-[12px] font-medium shadow-sm hover:bg-sky-50 transition-colors"
+                  <Button
+                    className="flex items-center gap-1 bg-white rounded-md px-4 py-1 text-[12px] font-medium shadow-sm hover:bg-sky-50 transition-colors"
                     style={{ color: "#3592E6" }}
                     onClick={() =>
                       window.open(requirements.downloadUrl, "_blank")
                     }>
-                    <CircleArrowDown size={14} style={{ color: "#3592E6" }} />
+                    <CircleArrowDown size={50} style={{ color: "#3592E6" }} />
                     <span style={{ color: "#3592E6" }}>Download</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
           )}
         </div>
-
-        {/* Rejection Note */}
-        {(status === "failed" || status === "replace") && rejectionNote && (
-          <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
-            <div className="flex items-start gap-2">
-              <AlertCircle size={16} className="text-red-600 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-red-700">
-                  {status === "replace"
-                    ? "Worker Replacement Required"
-                    : "Medical Review Failed"}
-                </p>
-                <p className="text-xs text-red-600 mt-1">{rejectionNote}</p>
-              </div>
-            </div>
-          </div>
-        )}
       </CardBody>
     </Card>
   );
@@ -432,28 +376,24 @@ const CustomReplaceIcon = ({ size = 24, strokeSize = 4, className = "" }) => {
       <UserRound
         size={userSize}
         strokeWidth={userStroke}
-        className="absolute top-0 left-0 text-red-500 font-medium"
+        className="absolute top-0 left-0 text-red-500"
       />
-
       {/* Bottom-right user */}
       <UserRound
         size={userSize}
         strokeWidth={userStroke}
-        className="absolute bottom-0 right-0 text-red-500 font-medium"
+        className="absolute bottom-0 right-0 text-red-500"
       />
-
-      {/* Arrow going from bottom-right user → top-left user */}
+      {/* Arrows */}
       <CornerUpLeft
         size={arrowSize}
         strokeWidth={userStroke}
-        className="absolute top-0 right-0 text-red-500 font-medium"
+        className="absolute top-0 right-0 text-red-500"
       />
-
-      {/* Arrow going from top-left user → bottom-right user */}
       <CornerDownRight
         size={arrowSize}
         strokeWidth={userStroke}
-        className="absolute bottom-0 left-0 text-red-500 font-medium"
+        className="absolute bottom-0 left-0 text-red-500"
       />
     </div>
   );

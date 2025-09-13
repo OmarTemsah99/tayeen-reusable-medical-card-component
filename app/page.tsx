@@ -11,7 +11,7 @@ export default function Home() {
         jobOffer: "1200",
         age: "32 years",
       }}
-      status="pending"
+      status="accepted"
       requirements={{
         title: "KSA Medical Requirements For Drivers",
         downloadUrl: "/docs/medical-requirements.pdf",
